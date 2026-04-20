@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String?
+  role          String   @default("user")
+  is_active     Boolean  @default(true)
+  is_deleted    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  companies     Company[]
+  campaigns     Campaign[]
+  messages      Message[]
+  leads         Lead[]
+  ad_contents   AdContent[]
+  comm_logs     CommunicationLog[]
+  market_researches MarketResearch[]
+  memories      Memory[]
+  tool_logs     ToolLog[]
+  summaries     ConversationSummary[]
+  image_generations ImageGeneration[]
+
+  @@map("users")
+}
+
+model ImageGeneration {
+  id          String   @id @default(uuid())
+  prompt      String   @db.Text
+  imageUrl    String   @db.Text
+  size        String   @default("1024x1024")
+  style       String   @default("vivid")
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  createdAt   DateTime @default(now())
+
+  @@map("image_generations")
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  type        String   // fact, preference, insight, project_context
+  key         String   // e.g., "favorite_color", "brand_voice", "research_results_real_estate"
+  value       String   @db.Text
+  importance  Int      @default(1) // 1-5
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  metadata    Json?    // Optional structured metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([user_id, key])
+  @@index([user_id, type, key])
+  @@index([user_id, createdAt])
+  @@map("memories")
+}
+
+model ToolLog {
+  id              String   @id @default(uuid())
+  tool_name       String
+  input           Json
+  output          Json?
+  status          String   // success, failure
+  error_message   String?
+  execution_time  Int?     // milliseconds
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id         String
+  createdAt       DateTime @default(now())
+
+  @@index([user_id])
+  @@index([user_id, createdAt])
+  @@index([user_id, tool_name])
+  @@map("tool_logs")
+}
+
+model ConversationSummary {
+  id              String   @id @default(uuid())
+  summary         String   @db.Text
+  last_message_id String?
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id         String   @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("conversation_summaries")
+}
+
+model Message {
+  id           String   @id @default(uuid())
+  role         String   // human, ai, tool, system
+  content      String
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id      String
+  tool_calls   Json?    // Store tool calls as JSON
+  tool_call_id String?  // Store tool call ID for tool messages
+  createdAt    DateTime @default(now())
+
+  @@index([user_id])
+  @@index([user_id, createdAt])
+  @@map("messages")
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  domain      String?
+  industry    String?
+  location    String?
+  size        String?
+  description String?
+  email       String?
+  phone       String?
+  linkedIn    String?
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  leads       Lead[]
+  ad_contents AdContent[]
+  comm_logs   CommunicationLog[]
+  campaigns   Campaign[]         @relation("CompanyCampaigns")
+
+  @@unique([domain, user_id])
+  @@map("companies")
+}
+
+model Lead {
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  position    String?
+  linkedIn    String?
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  company     Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company_id  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([company_id])
+  @@map("leads")
+}
+
+model Campaign {
+  id          String   @id @default(uuid())
+  name        String
+  status      String   @default("draft")
+  type        String
+  budget      Float?
+  duration    String?
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  company     Company? @relation("CompanyCampaigns", fields: [company_id], references: [id], onDelete: Cascade)
+  company_id  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ad_contents AdContent[]
+  comm_logs   CommunicationLog[]
+
+  @@map("campaigns")
+}
+
+model AdContent {
+  id          String   @id @default(uuid())
+  title       String
+  body        String
+  platform    String   // e.g., Facebook, Google, LinkedIn
+  status      String   @default("draft")
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  company     Company?  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company_id  String?
+  campaign    Campaign? @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+  campaign_id String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([campaign_id])
+  @@map("ad_contents")
+}
+
+model CommunicationLog {
+  id          String   @id @default(uuid())
+  type        String   // e.g., SMS, Email, WhatsApp, Call
+  status      String   // e.g., Sent, Failed, Scheduled
+  content     String
+  recipient   String
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  company     Company?  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company_id  String?
+  campaign    Campaign? @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+  campaign_id String?
+  createdAt   DateTime @default(now())
+
+  @@index([campaign_id])
+  @@map("communication_logs")
+}
+
+model MarketResearch {
+  id          String   @id @default(uuid())
+  query       String
+  results     String   // JSON string or long text
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([user_id])
+  @@map("market_researches")
+}

@@ -1,0 +1,3 @@
+export declare const createCampaignDbTool: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>;
+export declare const getCampaignsListTool: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>;
+export declare const campaignsTools: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>[];

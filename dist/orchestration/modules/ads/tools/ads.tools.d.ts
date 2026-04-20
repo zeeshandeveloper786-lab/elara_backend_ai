@@ -1,0 +1,3 @@
+export declare const generateAdContentTool: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>;
+export declare const marketResearchTool: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>;
+export declare const adsTools: import("@langchain/core/tools").DynamicStructuredTool<import("zod").ZodType<unknown, unknown, import("zod/v4/core").$ZodTypeInternals<unknown, unknown>>, unknown, unknown, string, unknown, string>[];
