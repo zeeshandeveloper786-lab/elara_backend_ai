@@ -15,6 +15,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "self:test": "ts-node -r tsconfig-paths/register scripts/self-test.ts",
     "self:e2e": "ts-node -r tsconfig-paths/register scripts/e2e-graph-test.ts",
+    "test:system": "ts-node -r tsconfig-paths/register scripts/test-system.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

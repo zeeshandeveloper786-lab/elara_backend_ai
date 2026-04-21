@@ -12,7 +12,7 @@ model User {
   email         String   @unique
   password      String
   name          String?
-  role          String   @default("user")
+  role          UserRole @default(USER)
   is_active     Boolean  @default(true)
   is_deleted    Boolean  @default(false)
   createdAt     DateTime @default(now())
@@ -30,6 +30,10 @@ model User {
   image_generations ImageGeneration[]
 
   @@map("users")
+}
+
+enum UserRole {
+  USER
 }
 
 model ImageGeneration {
