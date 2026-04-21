@@ -444,7 +444,7 @@ export class OrchestrationService {
 
       // 3. Invoke Graph with Output Safety (Rule 9)
       const result = await this.graph.invoke(state, {
-        recursionLimit: 4, // Aggressively reduced for fast execution
+        recursionLimit: 15, // Aggressively reduced for fast execution
       });
 
       // Fallback for Empty Response (Rule 9)
